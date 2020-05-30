@@ -15,7 +15,7 @@ def normalize(tensor: torch.Tensor) -> torch.Tensor:
 def match_length(sample: torch.Tensor, length: int) -> torch.Tensor:
     """
     Trims an audio-sample to the desired length, if the sample is shorter
-    then the desired length, it will be repeated n times and then trimmed
+    than the desired length, it will be repeated n times and then trimmed
     @param sample: audio-sample to be trimmed
     @param length: desired length
     @return: trimmed audio-sample
@@ -31,6 +31,13 @@ def stereo_to_mono(sample: torch.Tensor) -> torch.Tensor:
 
 
 def match_sample_rate(sample: torch.Tensor, src_sr: int, trg_sr: int) -> torch.Tensor:
+    """
+    Check if src_sr and trg_sr are equal, if not, the sample-rate of the sample is adjusted
+    @param sample: the audio-sample whose sample-rate is to be changed
+    @param src_sr: sample rate of the sample
+    @param trg_sr: desired sample rate
+    @return: audio-sample with trg_sr as sample rate
+    """
     if src_sr != trg_sr:
         return torchaudio.transforms.Resample(orig_freq=src_sr, new_freq=trg_sr)(sample)
     else:
