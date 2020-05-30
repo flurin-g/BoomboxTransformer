@@ -1,8 +1,10 @@
 # editor ide
 .idea/
+.ipynb_checkpoints
 
 # python
 venv/
+__pycache__/
 
 # dataset
 data
