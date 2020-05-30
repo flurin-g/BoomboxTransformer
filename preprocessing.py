@@ -20,10 +20,21 @@ def match_length(sample: torch.Tensor, length: int) -> torch.Tensor:
     @param length: desired length
     @return: trimmed audio-sample
     """
-    if len(sample) < length:
-        times = math.ceil(length / len(sample))
-        sample = sample.repeat(times)
-    return sample[:length]
+    if sample.shape[1] < length:
+        times = math.ceil(length / sample.shape[1])
+        sample = sample.repeat(1, times)
+    return sample[:, :length]
+
+
+def stereo_to_mono(sample: torch.Tensor) -> torch.Tensor:
+    return torch.mean(sample, 0).unsqueeze(0)
+
+
+def match_sample_rate(sample: torch.Tensor, src_sr: int, trg_sr: int) -> torch.Tensor:
+    if src_sr != trg_sr:
+        return torchaudio.transforms.Resample(orig_freq=src_sr, new_freq=trg_sr)(sample)
+    else:
+        return sample
 
 
 def mix_samples(sample_a: torch.Tensor, sample_b: torch.Tensor, trim_to: str = "a") -> torch.Tensor:
@@ -37,6 +48,6 @@ def mix_samples(sample_a: torch.Tensor, sample_b: torch.Tensor, trim_to: str = "
     """
     if trim_to == "b":
         sample_a, sample_b = sample_b, sample_a
-    sample_b = match_length(sample_b, len(sample_a))
+    sample_b = match_length(sample_b, sample_a.shape[1])
     add = torch.add(sample_a, sample_b)
     return normalize(add)
