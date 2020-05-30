@@ -1,0 +1,8 @@
+# editor ide
+.idea/
+
+# python
+venv/
+
+# dataset
+data
