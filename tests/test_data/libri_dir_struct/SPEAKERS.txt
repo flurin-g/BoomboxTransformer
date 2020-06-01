@@ -1,0 +1,14 @@
+; Some pipe(|) separated metadata about all LibriVox readers, whose work was used
+; in the corpus.
+;
+; The meaning of the fields in left-to-right order is as follows:
+;
+; reader_id: the ID of the reader in the LibriVox's database
+; gender: 'F' for female, 'M' for male
+; subset: the corpus subset to which the reader's audio is assigned
+; duration: total number of minutes of speech by the reader, included in the corpus
+; name: the name under which the reader is registered in LibriVox
+;
+;ID  |SEX| SUBSET           |MINUTES| NAME
+84   | F | dev-clean        | 8.02  | Christie Nowak
+174  | M | dev-clean        | 8.04  | Peter Eastman
