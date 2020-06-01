@@ -8,3 +8,6 @@ n_layers: 2
 n_epochs: 2
 lr: 5.0
 gamma: 0.95
+data:
+  libri_speech: "data/LibriSpeech"
+  urban_sound: "data/UrbanSound8K"
