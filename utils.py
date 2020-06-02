@@ -51,7 +51,7 @@ def parse_libri_meta(meta_path: str) -> list:
     return res
 
 
-def fetch_files(row: pd.Series, data_path: str) -> Iterator[Tuple[str, str, str]]:
+def fetch_files(row: namedtuple, data_path: str) -> Iterator[Tuple[str, str, str]]:
     """
     Given row of DataFrame and the path of librispeech, construct paths for all files
     @param row: NamedTuple from df.iterrows, with keys: SUBSET, ID

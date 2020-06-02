@@ -1,4 +1,3 @@
-from collections import namedtuple
 from unittest import TestCase
 
 import pandas as pd
@@ -20,8 +19,7 @@ class Test(TestCase):
         self.assertEqual(str(res), "HyperParameters(foo=12, bar=13, baz={'bim': 'b', 'bam': 'c'})")
 
     def test_load_params(self):
-        res = load_params("../tests/test_data/test_params.yml")
-        print(res)
+        res = load_params("tests/test_data/test_params.yml")
         self.assertEqual(str(res), "HyperParameters(foo=1, bar=2, baz={'eenie': 'a', 'meenie': 'b', 'miny': 'c'})")
 
     def test_h_params(self):
@@ -30,7 +28,7 @@ class Test(TestCase):
 
     def test_parse_libri_meta(self):
         res = parse_libri_meta("tests/test_data/libri_dir_struct/SPEAKERS.txt")
-        print(res)
+        self.assertEqual(res, [['ID', 'SEX', 'SUBSET', 'MINUTES', 'NAME'], ['84', 'F', 'dev-clean', '8.02', 'Christie Nowak'], ['174', 'M', 'dev-clean', '8.04', 'Peter Eastman']])
 
     def test_fetch_files(self):
         df = pd.read_csv("../tests/test_data/SPEAKERS.csv")
