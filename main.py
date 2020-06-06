@@ -1,11 +1,5 @@
 import argparse
-import pandas as pd
-from utils import create_data_frame
-
-
-def create_libri_meta(libri_path: str, libri_meta_path: str, file_name: str = "libri_meta.csv") -> None:
-    libri_df = create_data_frame(libri_path, libri_meta_path)
-    libri_df.to_csv(path_or_buf=file_name, index=False)
+from utils import h_params, create_libri_meta, create_urban_meta
 
 
 def parse_args(parser):
@@ -25,10 +19,13 @@ def main():
     args, unknown_args = parser.parse_known_args()
 
     if "create-meta" in args.task:
-        create_libri_meta(libri_path="data/LibriSpeech",
-                          libri_meta_path="data/LibriSpeech/SPEAKERS.TXT")
+        create_libri_meta(libri_path=h_params.libri_path,
+                          libri_meta_path=h_params.libri_speakers,
+                          file_name=h_params.libri_meta,
+                          drop_subsets=h_params.libri_drop_subsets)
+
+        create_urban_meta(urban_path=h_params.urban_path)
 
 
 if __name__ == '__main__':
     main()
-
