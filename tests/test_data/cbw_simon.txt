@@ -1,0 +1,2 @@
+60   | M | train-clean-100  | 20.18 | |CBW|Simon
+61   | M | test-clean       | 8.08  | Paul-Gabriel Wiener
