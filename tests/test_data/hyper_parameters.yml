@@ -1,0 +1,21 @@
+batch_size: 8
+shuffle: True
+n_hid: 128
+n_mels: 128
+n_head: 2
+dropout: 0.2
+n_layers: 2
+n_epochs: 2
+lr: 5.0
+gamma: 0.95
+sr_libri: 16000
+sr_urban: 44100
+libri_path: "data/LibriSpeech"
+libri_drop_subsets:
+  - dev-other
+  - test-other
+  - train-other-500
+libri_speakers: "data/LibriSpeech/SPEAKERS.txt"
+libri_meta: "data/libri_meta.csv"
+urban_path: "data/UrbanSound8K"
+urban_meta: "data/urban_meta.csv"
