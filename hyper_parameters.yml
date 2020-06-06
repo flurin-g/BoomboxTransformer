@@ -8,6 +8,14 @@ n_layers: 2
 n_epochs: 2
 lr: 5.0
 gamma: 0.95
-data:
-  libri_speech: "data/LibriSpeech"
-  urban_sound: "data/UrbanSound8K"
+sr_libri: 16000
+sr_urban: 44100
+libri_path: "data/LibriSpeech"
+libri_drop_subsets:
+  - dev-other
+  - test-other
+  - train-other-500
+libri_speakers: "data/LibriSpeech/SPEAKERS.txt"
+libri_meta: "data/libri_meta.csv"
+urban_path: "data/UrbanSound8K"
+urban_meta: "data/urban_meta.csv"
