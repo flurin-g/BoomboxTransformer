@@ -4,7 +4,7 @@ import pandas as pd
 import yaml
 
 from utils import create_libri_data_frame, parse_libri_meta, fetch_files, CWD, HyperParameters, create_urban_data_frame, \
-    select_libri_subsets
+    select_libri_split
 
 
 class TestHyperParameters(TestCase):
@@ -32,7 +32,7 @@ class Test(TestCase):
 
     def test_h_params(self):
         from utils import h_params
-        print(h_params)
+        self.assertIsInstance(h_params, HyperParameters)
 
     def test_parse_libri_meta(self):
         res = parse_libri_meta("tests/test_data/libri_dir_struct/SPEAKERS.txt")
@@ -66,23 +66,23 @@ class Test(TestCase):
     def test_create_urban_meta(self):
         from utils import h_params
         res = create_urban_data_frame(h_params.urban_path)
-        print(res["salience"].sample(20))
+        assert (res["salience"] == 2).all()
 
-    def test_select_libri_subsets_train(self):
+    def test_select_libri_split_train(self):
         from utils import h_params
         libri_meta = pd.read_csv(CWD / h_params.libri_meta)
-        df = select_libri_subsets(libri_meta, "train", h_params.libri_subsets)
+        df = select_libri_split(libri_meta, "train", h_params.libri_subsets)
         assert df["SUBSET"].astype(str).str.contains("train").all()
 
-    def test_select_libri_subsets_dev(self):
+    def test_select_libri_split_dev(self):
         from utils import h_params
         libri_meta = pd.read_csv(CWD / h_params.libri_meta)
-        df = select_libri_subsets(libri_meta, "dev", h_params.libri_subsets)
+        df = select_libri_split(libri_meta, "dev", h_params.libri_subsets)
         assert df["SUBSET"].astype(str).str.contains("dev").all()
 
-    def test_select_libri_subsets_illegal_mode(self):
+    def test_select_libri_split_illegal_mode(self):
         from utils import h_params
         libri_meta = pd.read_csv(CWD / h_params.libri_meta)
         with self.assertRaises(AssertionError):
-            select_libri_subsets(libri_meta, "spam", h_params.libri_subsets)
+            select_libri_split(libri_meta, "spam", h_params.libri_subsets)
 
