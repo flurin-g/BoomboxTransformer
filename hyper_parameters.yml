@@ -11,10 +11,11 @@ gamma: 0.95
 sr_libri: 16000
 sr_urban: 44100
 libri_path: "data/LibriSpeech"
-libri_drop_subsets:
-  - dev-other
-  - test-other
-  - train-other-500
+libri_subsets:
+  - dev-clean
+  - test-clean
+  - train-clean-100
+  - train-clean-360
 libri_speakers: "data/LibriSpeech/SPEAKERS.txt"
 libri_meta: "data/libri_meta.csv"
 urban_path: "data/UrbanSound8K"

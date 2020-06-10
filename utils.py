@@ -24,7 +24,7 @@ class HyperParameters(NamedTuple):
     sr_libri: int
     sr_urban: int
     libri_path: str
-    libri_drop_subsets: list
+    libri_subsets: list
     libri_speakers: str
     libri_meta: str
     urban_path: str
@@ -80,22 +80,22 @@ def fetch_files(row: namedtuple, data_path: str) -> Iterator[Tuple[str, str, str
     return itertools.chain.from_iterable([fetch_file_paths(directory) for directory in path.iterdir()])
 
 
-def create_libri_data_frame(root_path: str, meta_path: str, drop_subsets: list) -> pd.DataFrame:
+def create_libri_data_frame(root_path: str, meta_path: str, subsets: list) -> pd.DataFrame:
     """
-    @param drop_subsets: list of subsets to be excluded
+    @param subsets: list of subsets to be excluded
     @return: DataFrame containing meta-data and corresponding file-path
     """
     speakers_parse = parse_libri_meta(meta_path)
     df_raw = pd.DataFrame(speakers_parse[1:], columns=speakers_parse[0])
-    if drop_subsets:
-        df_raw = df_raw[~df_raw.SUBSET.isin(drop_subsets)]
+    if subsets:
+        df_raw = df_raw[df_raw.SUBSET.isin(subsets)]
     paths = itertools.chain.from_iterable([fetch_files(row, root_path) for row in df_raw.itertuples()])
     df_paths = pd.DataFrame.from_records(paths, columns=['SUBSET', 'ID', 'PATH'])
     return df_raw.merge(df_paths, on=["SUBSET", "ID"])
 
 
-def create_libri_meta(libri_path: str, libri_meta_path: str, file_name: str, drop_subsets: list) -> None:
-    libri_df = create_libri_data_frame(libri_path, libri_meta_path, drop_subsets)
+def create_libri_meta(libri_path: str, libri_meta_path: str, file_name: str, subsets: list) -> None:
+    libri_df = create_libri_data_frame(libri_path, libri_meta_path, subsets)
     libri_df.to_csv(path_or_buf=file_name, index=False)
 
 
@@ -116,3 +116,9 @@ def create_urban_data_frame(urban_path: str, background_only: bool = True) -> pd
 def create_urban_meta(urban_path: str, file_name: str = h_params.urban_meta) -> None:
     urban_df = create_urban_data_frame(urban_path)
     urban_df.to_csv(path_or_buf=file_name, index=False)
+
+
+def select_libri_subsets(df: pd.DataFrame, mode: str, subsets: list) -> pd.DataFrame:
+    assert mode in ["train", "dev", "test"], "mode must be one of train, dev, test"
+    subsets = [subset for subset in subsets if mode in subset]
+    return df[df.SUBSET.isin(subsets)]

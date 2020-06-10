@@ -22,7 +22,7 @@ def main():
         create_libri_meta(libri_path=h_params.libri_path,
                           libri_meta_path=h_params.libri_speakers,
                           file_name=h_params.libri_meta,
-                          drop_subsets=h_params.libri_drop_subsets)
+                          subsets=h_params.libri_subsets)
 
         create_urban_meta(urban_path=h_params.urban_path)
 
