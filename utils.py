@@ -118,7 +118,7 @@ def create_urban_meta(urban_path: str, file_name: str = h_params.urban_meta) -> 
     urban_df.to_csv(path_or_buf=file_name, index=False)
 
 
-def select_libri_subsets(df: pd.DataFrame, mode: str, subsets: list) -> pd.DataFrame:
+def select_libri_split(df: pd.DataFrame, mode: str, subsets: list) -> pd.DataFrame:
     assert mode in ["train", "dev", "test"], "mode must be one of train, dev, test"
     subsets = [subset for subset in subsets if mode in subset]
     return df[df.SUBSET.isin(subsets)]
