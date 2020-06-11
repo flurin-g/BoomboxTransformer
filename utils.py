@@ -7,6 +7,8 @@ import yaml
 import pathlib
 import re
 
+from sklearn.model_selection import train_test_split
+
 CWD = pathlib.Path(__file__).parent.absolute()
 
 
@@ -113,8 +115,18 @@ def create_urban_data_frame(urban_path: str, background_only: bool = True) -> pd
     return urban
 
 
+def partition_urban_meta(urban_meta: pd.DataFrame) -> pd.DataFrame:
+    train, tmp = train_test_split(urban_meta, test_size=0.3, stratify=urban_meta["class"], random_state=42)
+    dev, test = train_test_split(tmp, test_size=0.5, stratify=tmp["class"], random_state=42)
+    urban_meta.loc[train.index, "split"] = "train"
+    urban_meta.loc[dev.index, "split"] = "dev"
+    urban_meta.loc[test.index, "split"] = "test"
+    return urban_meta
+
+
 def create_urban_meta(urban_path: str, file_name: str = h_params.urban_meta) -> None:
     urban_df = create_urban_data_frame(urban_path)
+    urban_df = partition_urban_meta(urban_df)
     urban_df.to_csv(path_or_buf=file_name, index=False)
 
 

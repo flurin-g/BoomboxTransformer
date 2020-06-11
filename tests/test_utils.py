@@ -4,7 +4,7 @@ import pandas as pd
 import yaml
 
 from utils import create_libri_data_frame, parse_libri_meta, fetch_files, CWD, HyperParameters, create_urban_data_frame, \
-    select_libri_split
+    select_libri_split, partition_urban_meta
 
 
 class TestHyperParameters(TestCase):
@@ -62,6 +62,15 @@ class Test(TestCase):
         root_path = "tests/test_data/libri_dir_struct/"
         res = create_libri_data_frame(root_path, meta_path, ['dev-clean'])
         print(res)
+
+    def test_partition_urban_meta(self):
+        from utils import h_params
+        urban_df = create_urban_data_frame(h_params.urban_path)
+        res = partition_urban_meta(urban_df)
+        print(res.groupby("split")["class"].count())
+        self.assertEqual(2121, res.groupby("split")["class"].count().train)
+        self.assertEqual(454, res.groupby("split")["class"].count().dev)
+        self.assertEqual(455, res.groupby("split")["class"].count().test)
 
     def test_create_urban_meta(self):
         from utils import h_params
