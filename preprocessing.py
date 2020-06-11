@@ -46,10 +46,10 @@ def match_sample_rate(sample: torch.Tensor, src_sr: int, trg_sr: int) -> torch.T
         return sample
 
 
-def create_match_8k_libri(urban_sr: int, libri_sr: int) -> callable:
+def create_match_urban_to_libri(urban_sr: int, libri_sr: int) -> callable:
     to_libri_sr = torchaudio.transforms.Resample(orig_freq=urban_sr, new_freq=libri_sr)
 
-    def match_8k_libri(sample: torch.Tensor) -> torch.Tensor:
+    def match_urban_to_libri(sample: torch.Tensor) -> torch.Tensor:
         """
         Resamples urban8k-files to the sampling rate of libri-speech
         additionally converts them to mono
@@ -59,7 +59,7 @@ def create_match_8k_libri(urban_sr: int, libri_sr: int) -> callable:
         sample_mono = stereo_to_mono(sample)
         return to_libri_sr(sample_mono)
 
-    return match_8k_libri
+    return match_urban_to_libri
 
 
 def mix_samples(sample_a: torch.Tensor, sample_b: torch.Tensor, trim_to: str = "a") -> torch.Tensor:
