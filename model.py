@@ -17,7 +17,7 @@ class NoisySpeechDataset(Dataset):
 
     def __init__(self, libri_meta_path: str, urban_meta_path: str, cwd: Path,
                  mode: str, libri_subsets: list, transform: callable, oversampling: int,
-                 libri_sr: int, urban_sr: int):
+                 libri_sr: int, urban_sr: int, libri_path: str, urban_path: str):
 
         oversampling = oversampling if oversampling else 1
 
@@ -35,6 +35,9 @@ class NoisySpeechDataset(Dataset):
 
         self.transform = transform
 
+        self.libri_path = libri_path
+        self.urban_path = urban_path
+
     def __len__(self):
         return len(self.pairs)
 
@@ -50,13 +53,13 @@ class NoisySpeechDataset(Dataset):
 
     def path_at(self, idx: int, of: str) -> str:
         df, tup_idx = (self.libri_df, 0) if of == "libri" else (self.urban_df, 1)
-        return df.at(df.index[self.pairs[tup_idx][idx]], "PATH")
+        return df.at[df.index[self.pairs[tup_idx][idx]], "PATH"]
 
     def __getitem__(self, idx):
         if torch.is_tensor(idx):
             idx = idx.tolist()
-        speech, _ = torchaudio.load(self.path_at(idx, "libri"))
-        noise, _ = torchaudio.load(self.path_at(idx, "urban"))
+        speech, _ = torchaudio.load(self.cwd / self.libri_path / self.path_at(idx, "libri"))
+        noise, _ = torchaudio.load(self.cwd / self.urban_path / self.path_at(idx, "urban"))
 
         noise = self.match_urban_to_libri(noise)
         mixed = mix_samples(speech, noise)
