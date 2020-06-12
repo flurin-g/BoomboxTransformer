@@ -1,8 +1,9 @@
 from unittest import TestCase
 
 import torch
+from pytorch_lightning.core.lightning import LightningModule, DataLoader
 
-from model import NoisySpeechDataset
+from model import NoisySpeechDataset, BoomboxTransformer
 from utils import h_params, CWD
 
 
@@ -58,3 +59,18 @@ class TestNoisySpeechDataset(TestCase):
         self.assertIsInstance(mix, torch.Tensor)
         self.assertIsInstance(speech, torch.Tensor)
         self.assertEqual(mix.shape[1], speech.shape[1])
+
+
+class TestBoomboxTransformer(TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.boombox = BoomboxTransformer(h_params, CWD)
+
+    def test_init(self):
+        self.assertIsInstance(self.boombox, BoomboxTransformer)
+
+    def test_train_dataloader(self):
+        res = self.boombox.train_dataloader()
+        self.assertIsInstance(res, DataLoader)
+
