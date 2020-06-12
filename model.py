@@ -10,7 +10,7 @@ import torchaudio
 from pytorch_lightning.core.lightning import LightningModule, DataLoader
 
 from preprocessing import create_match_urban_to_libri, mix_samples
-from utils import select_libri_split
+from utils import select_libri_split, HyperParameters
 
 
 class NoisySpeechDataset(Dataset):
@@ -73,12 +73,11 @@ class NoisySpeechDataset(Dataset):
 
 class BoomboxTransformer(LightningModule):
 
-    def __init__(self, h_params: namedtuple):
+    def __init__(self, h_params: HyperParameters, cwd: Path):
         super().__init__()
 
         self.h_params = h_params
-        # ToDo: maybe even abstract away, by creating a function that takes care of the whole audio stuff
-        self.match_8k_libri = create_match_urban_to_libri(h_params.sr_urban, h_params.sr_libri)
+        self.cwd = cwd
 
     def forward(self, x):
         pass
@@ -93,13 +92,18 @@ class BoomboxTransformer(LightningModule):
         pass
 
     def train_dataloader(self) -> DataLoader:
-        # data transforms
-        # dataset creation
+        transform = torchaudio.transforms.MelSpectrogram(sample_rate=self.h_params.sr_libri,
+                                                         n_mels=self.h_params.n_mels)
+        dataset = NoisySpeechDataset(self.h_params.libri_meta,
+                                     self.h_params.urban_meta,
+                                     self.cwd,
+                                     "train",
+                                     self.h_params.libri_subsets,
+                                     transform,
+                                     1,
+                                     self.h_params.sr_libri,
+                                     self.h_params.sr_urban,
+                                     self.h_params.libri_path,
+                                     self.h_params.urban_path)
 
-        # 1. instantiate a transformation function
-
-        # 2. instantiate a dataset instance and pass the transformation function
-        # -
-
-        # return a DataLoader
-        pass
+        return DataLoader(dataset, batch_size=self.h_params.batch_size)
