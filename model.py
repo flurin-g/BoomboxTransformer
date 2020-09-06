@@ -13,7 +13,7 @@ from torch.optim import Adam
 from noisy_speech import NoisySpeechDataset
 
 
-class PositionalEncoding(Module):
+class PositionalEncoding(LightningModule):
 
     def __init__(self, d_model, dropout=0.1, max_len=5000):
         super(PositionalEncoding, self).__init__()
@@ -67,7 +67,7 @@ class BoomboxTransformer(LightningModule):
         if self.src_mask is None or self.src_mask.size(0) != len(src):
             self.src_mask = self._generate_square_subsequent_mask(len(src))
 
-        src *= math.sqrt(self.nmels)
+        src *= math.sqrt(self.hparams.n_mels)
         src = self.pos_encoder(src)
         memory = self.encoder(src, self.src_mask)
         output = self.decoder(tgt, memory)
@@ -84,27 +84,26 @@ class BoomboxTransformer(LightningModule):
                                              file_name=self.settings.urban_meta,
                                              cwd=self.cwd)
 
-    # ToDo: integrate collate function
-    def data_processing(data):
+    @staticmethod
+    def pad_audio_seq(data):
         x_spectrograms = []
         y_spectrograms = []
         input_lengths = []
-        for (waveform, _, _, _, _, _) in data:
-            x_spec = train_audio_transforms(waveform).squeeze(0).transpose(0, 1)
-            y_spec = valid_audio_transforms(waveform).squeeze(0).transpose(0, 1)
-            x_spectrograms.append(x_spec)
-            y_spectrograms.append(y_spec)
-            input_lengths.append(x_spec.shape[0])
+        for (mixed, speech) in data:
+            x_spectrograms.append(mixed.squeeze(0).transpose(0, 1))
+            y_spectrograms.append(speech.squeeze(0).transpose(0, 1))
+            input_lengths.append(mixed.shape[0])
 
         # sort by sequence length, for pad_sequence to work
         ixs = sorted((ix for ix in range(len(input_lengths))), key=lambda ix: input_lengths[ix], reverse=True)
         x_spectrograms = [x_spectrograms[ix] for ix in ixs]
         y_spectrograms = [y_spectrograms[ix] for ix in ixs]
 
-        x_spectrograms = nn.utils.rnn.pad_sequence(x_spectrograms, batch_first=False)
-        y_spectrograms = nn.utils.rnn.pad_sequence(y_spectrograms, batch_first=False)
-        seq_len = x_spectrograms.shape[0]
-        return x_spectrograms, y_spectrograms, seq_len
+        x_spectrograms = nn.utils.rnn.pad_sequence(x_spectrograms, batch_first=True)
+        y_spectrograms = nn.utils.rnn.pad_sequence(y_spectrograms, batch_first=True)
+        # ToDo: check if needed:
+        # seq_len = x_spectrograms.shape[0]
+        return x_spectrograms, y_spectrograms #, seq_len
 
     def train_dataloader(self) -> DataLoader:
         transform = torchaudio.transforms.MelSpectrogram(sample_rate=self.settings.sr_libri,
@@ -121,14 +120,16 @@ class BoomboxTransformer(LightningModule):
                                      self.settings.libri_path,
                                      self.settings.urban_path)
 
-        return DataLoader(dataset, batch_size=self.hparams["batch_size"])
+        return DataLoader(dataset,
+                          batch_size=self.hparams["batch_size"],
+                          collate_fn=self.pad_audio_seq)
 
     def configure_optimizers(self):
         return Adam(self.parameters(), lr=self.hparams["lr"])
 
     def training_step(self, batch, batch_idx) -> dict:
         x, y = batch
-        logits = self(x)
+        logits = self(x, y)
         loss = F.l1_loss(logits, y)
 
         # add logging
