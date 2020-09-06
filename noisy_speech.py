@@ -177,7 +177,7 @@ class NoisySpeechDataset(Dataset):
             if of == "libri" else (self.urban_df, self.comp_urban_idx(idx))
         return df.at[df.index[idx_val], "PATH"]
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx: int):
         if torch.is_tensor(idx):
             idx = idx.tolist()
         speech, _ = torchaudio.load(self.cwd / self.libri_path / self.path_at(idx, "libri"))
