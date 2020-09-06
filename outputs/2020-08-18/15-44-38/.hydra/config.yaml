@@ -1,0 +1,25 @@
+dataset:
+  create_meta: false
+  sr_libri: 16000
+  sr_urban: 44100
+  libri_path: data/LibriSpeech
+  libri_subsets:
+  - dev-clean
+  - test-clean
+  - train-clean-100
+  - train-clean-360
+  libri_speakers: data/LibriSpeech/SPEAKERS.txt
+  libri_meta: data/libri_meta.csv
+  urban_path: data/UrbanSound8K
+  urban_meta: data/urban_meta.csv
+hparams:
+  n_mels: 128
+  batch_size: 8
+  n_hid: 128
+  n_head: 2
+  dropout: 0.2
+  n_layers: 2
+  n_epochs: 2
+  lr: 5.0
+  gamma: 0.95
+  shuffle: true

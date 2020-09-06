@@ -1,0 +1,59 @@
+[2020-08-24 09:22:47,198][lightning][INFO] - GPU available: False, used: False
+[2020-08-24 09:22:47,199][lightning][WARNING] - No environment variable for node rank defined. Set as 0.
+[2020-08-24 09:22:57,654][lightning][INFO] - 
+   | Name                                     | Type                    | Params
+---------------------------------------------------------------------------------
+0  | pos_encoder                              | PositionalEncoding      | 0     
+1  | pos_encoder.dropout                      | Dropout                 | 0     
+2  | encoder                                  | TransformerEncoder      | 199 K 
+3  | encoder.layers                           | ModuleList              | 199 K 
+4  | encoder.layers.0                         | TransformerEncoderLayer | 99 K  
+5  | encoder.layers.0.self_attn               | MultiheadAttention      | 66 K  
+6  | encoder.layers.0.self_attn.out_proj      | Linear                  | 16 K  
+7  | encoder.layers.0.linear1                 | Linear                  | 16 K  
+8  | encoder.layers.0.dropout                 | Dropout                 | 0     
+9  | encoder.layers.0.linear2                 | Linear                  | 16 K  
+10 | encoder.layers.0.norm1                   | LayerNorm               | 256   
+11 | encoder.layers.0.norm2                   | LayerNorm               | 256   
+12 | encoder.layers.0.dropout1                | Dropout                 | 0     
+13 | encoder.layers.0.dropout2                | Dropout                 | 0     
+14 | encoder.layers.1                         | TransformerEncoderLayer | 99 K  
+15 | encoder.layers.1.self_attn               | MultiheadAttention      | 66 K  
+16 | encoder.layers.1.self_attn.out_proj      | Linear                  | 16 K  
+17 | encoder.layers.1.linear1                 | Linear                  | 16 K  
+18 | encoder.layers.1.dropout                 | Dropout                 | 0     
+19 | encoder.layers.1.linear2                 | Linear                  | 16 K  
+20 | encoder.layers.1.norm1                   | LayerNorm               | 256   
+21 | encoder.layers.1.norm2                   | LayerNorm               | 256   
+22 | encoder.layers.1.dropout1                | Dropout                 | 0     
+23 | encoder.layers.1.dropout2                | Dropout                 | 0     
+24 | decoder                                  | TransformerDecoder      | 331 K 
+25 | decoder.layers                           | ModuleList              | 331 K 
+26 | decoder.layers.0                         | TransformerDecoderLayer | 165 K 
+27 | decoder.layers.0.self_attn               | MultiheadAttention      | 66 K  
+28 | decoder.layers.0.self_attn.out_proj      | Linear                  | 16 K  
+29 | decoder.layers.0.multihead_attn          | MultiheadAttention      | 66 K  
+30 | decoder.layers.0.multihead_attn.out_proj | Linear                  | 16 K  
+31 | decoder.layers.0.linear1                 | Linear                  | 16 K  
+32 | decoder.layers.0.dropout                 | Dropout                 | 0     
+33 | decoder.layers.0.linear2                 | Linear                  | 16 K  
+34 | decoder.layers.0.norm1                   | LayerNorm               | 256   
+35 | decoder.layers.0.norm2                   | LayerNorm               | 256   
+36 | decoder.layers.0.norm3                   | LayerNorm               | 256   
+37 | decoder.layers.0.dropout1                | Dropout                 | 0     
+38 | decoder.layers.0.dropout2                | Dropout                 | 0     
+39 | decoder.layers.0.dropout3                | Dropout                 | 0     
+40 | decoder.layers.1                         | TransformerDecoderLayer | 165 K 
+41 | decoder.layers.1.self_attn               | MultiheadAttention      | 66 K  
+42 | decoder.layers.1.self_attn.out_proj      | Linear                  | 16 K  
+43 | decoder.layers.1.multihead_attn          | MultiheadAttention      | 66 K  
+44 | decoder.layers.1.multihead_attn.out_proj | Linear                  | 16 K  
+45 | decoder.layers.1.linear1                 | Linear                  | 16 K  
+46 | decoder.layers.1.dropout                 | Dropout                 | 0     
+47 | decoder.layers.1.linear2                 | Linear                  | 16 K  
+48 | decoder.layers.1.norm1                   | LayerNorm               | 256   
+49 | decoder.layers.1.norm2                   | LayerNorm               | 256   
+50 | decoder.layers.1.norm3                   | LayerNorm               | 256   
+51 | decoder.layers.1.dropout1                | Dropout                 | 0     
+52 | decoder.layers.1.dropout2                | Dropout                 | 0     
+53 | decoder.layers.1.dropout3                | Dropout                 | 0     
