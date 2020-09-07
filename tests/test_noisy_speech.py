@@ -1,3 +1,4 @@
+from unittest import TestCase
 from unittest.case import TestCase
 
 import pandas as pd
@@ -86,12 +87,14 @@ class TestNoisySpeechDataset(TestCase):
                                          CWD,
                                          "train",
                                          dataset.libri_subsets,
+                                         dataset.libri_urls,
                                          None,
                                          1,
                                          dataset.sr_libri,
                                          dataset.sr_urban,
                                          dataset.libri_path,
-                                         dataset.urban_path)
+                                         dataset.urban_path,
+                                         dataset.urban_url)
 
     def test_init(self):
         self.assertIsInstance(self.dataset, NoisySpeechDataset)
@@ -148,5 +151,3 @@ class TestNoisySpeechDataset(TestCase):
         self.assertIsInstance(mix, torch.Tensor)
         self.assertIsInstance(speech, torch.Tensor)
         self.assertEqual(mix.shape[1], speech.shape[1])
-
-    # ToDo: write tests for edge-cases: oversampling and correct pairing
