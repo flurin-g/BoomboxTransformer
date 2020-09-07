@@ -9,6 +9,7 @@ from typing import List, Iterator, Tuple
 import pandas as pd
 import torch
 import torchaudio
+from torchvision.datasets.utils import download_and_extract_archive, download_file_from_google_drive, extract_archive
 from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset
 
@@ -109,8 +110,8 @@ def is_prime(a):
 class NoisySpeechDataset(Dataset):
 
     def __init__(self, libri_meta_path: str, urban_meta_path: str, cwd: Path,
-                 mode: str, libri_subsets: list, transform: callable, oversampling: int,
-                 libri_sr: int, urban_sr: int, libri_path: str, urban_path: str):
+                 mode: str, libri_subsets: list, libri_urls: dict, transform: callable, oversampling: int,
+                 libri_sr: int, urban_sr: int, libri_path: str, urban_path: str, urban_url):
 
         self.cwd = cwd
 
@@ -125,7 +126,11 @@ class NoisySpeechDataset(Dataset):
         self.transform = transform
 
         self.libri_path = libri_path
+        self.libri_subsets = libri_subsets
+        self.libri_urls = libri_urls
+
         self.urban_path = urban_path
+        self.urban_url = urban_url
 
         self.speech_len = len(self.libri_df.index)
         self.noise_len = len(self.urban_df.index)
@@ -171,6 +176,23 @@ class NoisySpeechDataset(Dataset):
         urban_df = create_urban_data_frame(urban_path, cwd)
         urban_df = partition_urban_meta(urban_df)
         urban_df.to_csv(path_or_buf=cwd / file_name, index=False)
+
+    def download_libri(self) -> None:
+        Path.mkdir(self.cwd / self.libri_path, parents=True, exist_ok=True)
+        for subset in self.libri_subsets:
+            download_and_extract_archive(url=self.libri_urls[subset],
+                                         download_root=self.cwd / self.libri_path,
+                                         filename=subset + ".tar.gz",
+                                         remove_finished=True)
+
+    def download_urban(self) -> None:
+        urban_path = Path(self.urban_path)
+        Path.mkdir(self.cwd / urban_path.name, parents=True, exist_ok=True)
+        download_file_from_google_drive(file_id=self.urban_url,
+                                        root=self.cwd / urban_path.parent,
+                                        filename="UrbanSound8K.tar.gz")
+        extract_archive(from_path=str(self.cwd / urban_path.parent / "UrbanSound8K.tar.gz"),
+                        remove_finished=True)
 
     def path_at(self, idx: int, of: str) -> str:
         df, idx_val = (self.libri_df, idx % self.speech_len) \
