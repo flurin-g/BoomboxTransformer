@@ -113,12 +113,14 @@ class BoomboxTransformer(LightningModule):
                                      self.cwd,
                                      "train",
                                      self.settings.libri_subsets,
+                                     self.libri_urls,
                                      transform,
                                      1,
                                      self.settings.sr_libri,
                                      self.settings.sr_urban,
                                      self.settings.libri_path,
-                                     self.settings.urban_path)
+                                     self.settings.urban_path,
+                                     self.settings.urban_url)
 
         return DataLoader(dataset,
                           batch_size=self.hparams["batch_size"],
