@@ -1,0 +1,9 @@
+hydra:
+  run:
+    dir: data/output
+defaults:
+  - dataset: noisy_speech
+  - hparams: basic
+  - logging: tensorboard
+create_meta: False
+save_dir: logs/
