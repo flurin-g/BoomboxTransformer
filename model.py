@@ -113,7 +113,7 @@ class BoomboxTransformer(LightningModule):
                                      self.cwd,
                                      "train",
                                      self.settings.libri_subsets,
-                                     self.libri_urls,
+                                     self.settings.libri_urls,
                                      transform,
                                      1,
                                      self.settings.sr_libri,
