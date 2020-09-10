@@ -138,10 +138,10 @@ class NoisySpeechDataset(Dataset):
         self.compute_oversampling(oversampling)
         self.comp_urban_idx = self.create_comp_urban_idx()
 
-    def __len__(self):
+    def __len__(self) -> int:
         return self.speech_len * self.oversampling
 
-    def compute_oversampling(self, oversampling):
+    def compute_oversampling(self, oversampling: int) -> int:
         if oversampling > 1:
             self.oversampling = oversampling if oversampling < self.noise_len else self.noise_len - 1
             self.speech_len = self.speech_len - 1 if is_prime(self.speech_len) else self.speech_len
@@ -149,19 +149,19 @@ class NoisySpeechDataset(Dataset):
         else:
             self.oversampling = 1
 
-    def shift(self, idx):
+    def shift(self, idx: int) -> int:
         if self.oversampling == 1:
             shift = 0
         else:
             shift = idx // self.speech_len
         return shift
 
-    def create_comp_urban_idx(self):
+    def create_comp_urban_idx(self) -> callable:
         if self.oversampling >= 2:
-            def comp_urban_idx(idx):
+            def comp_urban_idx(idx: int) -> int:
                 return (idx + self.shift(idx)) % self.speech_len % self.noise_len
         else:
-            def comp_urban_idx(idx):
+            def comp_urban_idx(idx: int) -> int:
                 return (idx + self.shift(idx)) % self.speech_len
 
         return comp_urban_idx
@@ -199,7 +199,7 @@ class NoisySpeechDataset(Dataset):
             if of == "libri" else (self.urban_df, self.comp_urban_idx(idx))
         return df.at[df.index[idx_val], "PATH"]
 
-    def __getitem__(self, idx: int):
+    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
         if torch.is_tensor(idx):
             idx = idx.tolist()
         speech, _ = torchaudio.load(self.cwd / self.libri_path / self.path_at(idx, "libri"))
