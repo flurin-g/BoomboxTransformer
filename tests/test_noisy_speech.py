@@ -13,8 +13,8 @@ from tests.test_model import CWD
 class TestNoisySpeechFunctions(TestCase):
     @classmethod
     def setUpClass(cls):
-        initialize("../")
-        cls.settings = compose("parameters.yml")
+        initialize("../conf")
+        cls.settings = compose("config")
 
     def test_parse_libri_meta(self):
         res = parse_libri_meta("tests/test_data/libri_dir_struct/SPEAKERS.txt", CWD)
