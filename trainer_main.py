@@ -4,6 +4,7 @@
 import pathlib
 
 import hydra
+import torch
 from omegaconf import DictConfig
 from pytorch_lightning import Trainer
 from pytorch_lightning.loggers import TensorBoardLogger
@@ -15,13 +16,12 @@ CWD = pathlib.Path(__file__).parent.absolute()
 
 @hydra.main(config_path="conf", config_name="config")
 def my_app(cfg: DictConfig) -> None:
-    tb_logger = TensorBoardLogger(save_dir=cfg.save_dir)
-    boom: BoomboxTransformer = BoomboxTransformer(cfg, CWD)
-    # print(cfg.pretty()) #to view the parameters
-    if cfg.create_meta:
-        boom.prepare_data()
+    boom = BoomboxTransformer(cfg, CWD)
 
-    trainer = Trainer(logger=tb_logger)
+    boom.prepare_data()
+
+    trainer = Trainer(**cfg.lightning)
+
     trainer.fit(boom)
 
 
