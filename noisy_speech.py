@@ -9,6 +9,7 @@ from typing import List, Iterator, Tuple
 import pandas as pd
 import torch
 import torchaudio
+from omegaconf import DictConfig
 from torchvision.datasets.utils import download_and_extract_archive, download_file_from_google_drive, extract_archive
 from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset
@@ -109,39 +110,31 @@ def is_prime(a):
 
 class NoisySpeechDataset(Dataset):
 
-    def __init__(self, libri_meta_path: str, urban_meta_path: str, cwd: Path,
-                 mode: str, libri_subsets: list, libri_urls: dict, transform: callable, oversampling: int,
-                 libri_sr: int, urban_sr: int, libri_path: str, urban_path: str, urban_url):
+    def __init__(self, cfg: DictConfig, cwd: Path, mode: str, transform: callable):
 
+        self.cfg = cfg
         self.cwd = cwd
-
-        libri_meta = pd.read_csv(cwd / libri_meta_path)
-        self.libri_df = select_libri_split(libri_meta, mode, libri_subsets)
-
-        urban_meta = pd.read_csv(cwd / urban_meta_path)
-        self.urban_df = urban_meta[urban_meta["split"] == mode]
-
-        self.match_urban_to_libri = create_match_urban_to_libri(urban_sr, libri_sr)
-
+        self.mode = mode
         self.transform = transform
 
-        self.libri_path = libri_path
-        self.libri_subsets = libri_subsets
-        self.libri_urls = libri_urls
+        libri_meta = pd.read_csv(cwd / self.cfg.libri_meta)
+        self.libri_df = select_libri_split(libri_meta, self.mode, self.cfg.libri_subsets)
 
-        self.urban_path = urban_path
-        self.urban_url = urban_url
+        urban_meta = pd.read_csv(cwd / self.cfg.urban_meta)
+        self.urban_df = urban_meta[urban_meta["split"] == self.mode]
+
+        self.match_urban_to_libri = create_match_urban_to_libri(self.cfg.sr_urban, self.cfg.sr_libri)
 
         self.speech_len = len(self.libri_df.index)
         self.noise_len = len(self.urban_df.index)
         self.oversampling = None
-        self.compute_oversampling(oversampling)
+        self.compute_oversampling(self.cfg.oversampling)
         self.comp_urban_idx = self.create_comp_urban_idx()
 
     def __len__(self) -> int:
         return self.speech_len * self.oversampling
 
-    def compute_oversampling(self, oversampling: int) -> int:
+    def compute_oversampling(self, oversampling: int) -> None:
         if oversampling > 1:
             self.oversampling = oversampling if oversampling < self.noise_len else self.noise_len - 1
             self.speech_len = self.speech_len - 1 if is_prime(self.speech_len) else self.speech_len
@@ -162,7 +155,8 @@ class NoisySpeechDataset(Dataset):
                 return (idx + self.shift(idx)) % self.speech_len % self.noise_len
         else:
             def comp_urban_idx(idx: int) -> int:
-                return (idx + self.shift(idx)) % self.speech_len
+                idx_boundary = self.noise_len if self.noise_len < self.speech_len else self.speech_len
+                return (idx + self.shift(idx)) % idx_boundary
 
         return comp_urban_idx
 
@@ -177,21 +171,23 @@ class NoisySpeechDataset(Dataset):
         urban_df = partition_urban_meta(urban_df)
         urban_df.to_csv(path_or_buf=cwd / file_name, index=False)
 
-    def download_libri(self) -> None:
-        Path.mkdir(self.cwd / self.libri_path, parents=True, exist_ok=True)
-        for subset in self.libri_subsets:
-            download_and_extract_archive(url=self.libri_urls[subset],
-                                         download_root=self.cwd / self.libri_path,
+    @staticmethod
+    def download_libri(cfg: DictConfig) -> None:
+        Path.mkdir(cfg.cwd / cfg.libri_path, parents=True, exist_ok=True)
+        for subset in cfg.libri_subsets:
+            download_and_extract_archive(url=cfg.libri_urls[subset],
+                                         download_root=cfg.cwd / cfg.libri_path,
                                          filename=subset + ".tar.gz",
                                          remove_finished=True)
 
-    def download_urban(self) -> None:
-        urban_path = Path(self.urban_path)
-        Path.mkdir(self.cwd / urban_path.name, parents=True, exist_ok=True)
-        download_file_from_google_drive(file_id=self.urban_url,
-                                        root=self.cwd / urban_path.parent,
+    @staticmethod
+    def download_urban(cfg: DictConfig) -> None:
+        urban_path = Path(cfg.cfg.urban_path)
+        Path.mkdir(cfg.cwd / urban_path.name, parents=True, exist_ok=True)
+        download_file_from_google_drive(file_id=cfg.cfg.urban_url,
+                                        root=cfg.cwd / urban_path.parent,
                                         filename="UrbanSound8K.tar.gz")
-        extract_archive(from_path=str(self.cwd / urban_path.parent / "UrbanSound8K.tar.gz"),
+        extract_archive(from_path=str(cfg.cwd / urban_path.parent / "UrbanSound8K.tar.gz"),
                         remove_finished=True)
 
     def path_at(self, idx: int, of: str) -> str:
@@ -202,8 +198,8 @@ class NoisySpeechDataset(Dataset):
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
         if torch.is_tensor(idx):
             idx = idx.tolist()
-        speech, _ = torchaudio.load(self.cwd / self.libri_path / self.path_at(idx, "libri"))
-        noise, _ = torchaudio.load(self.cwd / self.urban_path / self.path_at(idx, "urban"))
+        speech, _ = torchaudio.load(self.cwd / self.cfg.libri_path / self.path_at(idx, "libri"))
+        noise, _ = torchaudio.load(self.cwd / self.cfg.urban_path / self.path_at(idx, "urban"))
 
         noise = self.match_urban_to_libri(noise)
         mixed = mix_samples(speech, noise)
