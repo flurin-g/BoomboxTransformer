@@ -172,22 +172,22 @@ class NoisySpeechDataset(Dataset):
         urban_df.to_csv(path_or_buf=cwd / file_name, index=False)
 
     @staticmethod
-    def download_libri(cfg: DictConfig) -> None:
-        Path.mkdir(cfg.cwd / cfg.libri_path, parents=True, exist_ok=True)
+    def download_libri(cfg: DictConfig, cwd: Path) -> None:
+        Path.mkdir(cwd / cfg.libri_path, parents=True, exist_ok=True)
         for subset in cfg.libri_subsets:
             download_and_extract_archive(url=cfg.libri_urls[subset],
-                                         download_root=cfg.cwd / cfg.libri_path,
+                                         download_root=cwd / cfg.libri_path,
                                          filename=subset + ".tar.gz",
                                          remove_finished=True)
 
     @staticmethod
-    def download_urban(cfg: DictConfig) -> None:
+    def download_urban(cfg: DictConfig, cwd: Path) -> None:
         urban_path = Path(cfg.cfg.urban_path)
-        Path.mkdir(cfg.cwd / urban_path.name, parents=True, exist_ok=True)
-        download_file_from_google_drive(file_id=cfg.cfg.urban_url,
-                                        root=cfg.cwd / urban_path.parent,
+        Path.mkdir(cwd / urban_path.name, parents=True, exist_ok=True)
+        download_file_from_google_drive(file_id=cfg.urban_url,
+                                        root=cwd / urban_path.parent,
                                         filename="UrbanSound8K.tar.gz")
-        extract_archive(from_path=str(cfg.cwd / urban_path.parent / "UrbanSound8K.tar.gz"),
+        extract_archive(from_path=str(cwd / urban_path.parent / "UrbanSound8K.tar.gz"),
                         remove_finished=True)
 
     def path_at(self, idx: int, of: str) -> str:
