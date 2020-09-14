@@ -79,9 +79,10 @@ class TestNoisySpeechDataset(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        initialize("../")
-        settings = compose("parameters.yml")
+        initialize("../conf")
+        settings = compose("config")
         dataset = settings.dataset
+        cls.settings = dataset
         cls.dataset = NoisySpeechDataset(dataset.libri_meta,
                                          dataset.urban_meta,
                                          CWD,
@@ -148,6 +149,12 @@ class TestNoisySpeechDataset(TestCase):
 
     def test_get_item(self):
         mix, speech = self.dataset[0]
+        self.assertIsInstance(mix, torch.Tensor)
+        self.assertIsInstance(speech, torch.Tensor)
+        self.assertEqual(mix.shape[1], speech.shape[1])
+
+    def test_get_item_last(self):
+        mix, speech = self.dataset[2121]
         self.assertIsInstance(mix, torch.Tensor)
         self.assertIsInstance(speech, torch.Tensor)
         self.assertEqual(mix.shape[1], speech.shape[1])

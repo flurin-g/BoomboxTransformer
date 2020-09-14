@@ -14,8 +14,8 @@ class TestBoomboxTransformer(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        initialize("../")
-        cls.settings = compose("parameters.yml")
+        initialize("../conf")
+        cls.settings = compose("config")
         cls.boombox = BoomboxTransformer(cfg=cls.settings, cwd=CWD)
 
     def test_init(self):
@@ -31,3 +31,13 @@ class TestBoomboxTransformer(TestCase):
         x_spectrograms, y_spectrograms = BoomboxTransformer.pad_audio_seq(data)
 
         self.assertEqual(True, all([x.size() == torch.Size([19, 128]) for x in x_spectrograms]))
+
+    def test_loss(self):
+        x = torch.Tensor([[7, 7, 7],
+                          [1, 2, 3],
+                          [1, 2, 3]])
+        y = torch.Tensor([[7, 7, 7],
+                          [1, 2, 3],
+                          [1, 2, 3]])
+        loss: torch.Tensor = torch.nn.MSELoss()(x, y)
+        print(loss)
