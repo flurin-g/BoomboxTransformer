@@ -1,4 +1,7 @@
 # @package _group_
+create_meta: False
+download: False
+oversampling: 1
 sr_libri: 16000
 sr_urban: 44100
 libri_path: "data/LibriSpeech"
