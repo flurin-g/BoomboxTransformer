@@ -61,6 +61,7 @@ class BoomboxTransformer(LightningModule):
                                                  self.hparams["dropout"])
         self.decoder = TransformerDecoder(decoder_layers, self.hparams["n_layers"])
 
+        self.init_weights()
 
     @staticmethod
     def _generate_square_subsequent_mask(sz) -> torch.Tensor:
@@ -68,10 +69,17 @@ class BoomboxTransformer(LightningModule):
         mask = mask.float().masked_fill(mask == 0, float('-inf')).masked_fill(mask == 1, float(0.0))
         return mask
 
+    def init_weights(self):
+        self.encoder.weight.data.uniform_(-self.hparams.weight_init_range,
+                                          self.hparams.weight_init_range)
+        self.decoder.bias.data.zero_() # ToDo: what is this for?
+        self.decoder.weight.data.uniform_(-self.hparams.weight_init_range,
+                                          self.hparams.weight_init_range)
+
     def prepare_data(self) -> None:
         if self.dataset.download:
-            NoisySpeechDataset.download_libri(cfg=self.dataset)
-            NoisySpeechDataset.download_urban(cfg=self.dataset)
+            NoisySpeechDataset.download_libri(cfg=self.dataset, cwd=self.cwd)
+            NoisySpeechDataset.download_urban(cfg=self.dataset, cwd=self.cwd)
 
         if self.dataset.create_meta:
             NoisySpeechDataset.create_libri_meta(libri_path=self.dataset.libri_path,
