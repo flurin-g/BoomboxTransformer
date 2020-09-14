@@ -1,6 +1,6 @@
 # @package _group_
-create_meta: False
-download: False
+create_meta: True
+download: True
 oversampling: 1
 sr_libri: 16000
 sr_urban: 44100
