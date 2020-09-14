@@ -9,3 +9,4 @@ n_epochs: 2
 lr: 0.001
 gamma: 0.95
 shuffle: True
+weight_init_range: 0.1
