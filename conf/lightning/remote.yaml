@@ -1,0 +1,4 @@
+# @package _group_
+gpus: 2 # insert number of available gpus
+distributed_backend: ddp
+precision: 16 # 16 bit precision mode

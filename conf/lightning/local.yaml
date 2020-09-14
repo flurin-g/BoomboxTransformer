@@ -1,0 +1,6 @@
+# @package _group_
+fast_dev_run: True
+
+# or use, to only use n% of dataset:
+# limit_train_batches: 0.1
+# limit_val_batches
