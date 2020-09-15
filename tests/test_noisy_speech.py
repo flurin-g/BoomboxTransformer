@@ -121,7 +121,7 @@ class TestNoisySpeechDataset(TestCase):
         self.assertEqual(2, self.noisy_speech.comp_urban_idx(12))
         self.assertEqual(2, self.noisy_speech.comp_urban_idx(15))
 
-    def test_comp_urban_idx_8_3(self):
+    def test_comp_urban_idx_8_4(self):
         self.noisy_speech.speech_len = 8
         self.noisy_speech.noise_len = 4
 
