@@ -121,7 +121,7 @@ class NoisySpeechDataset(Dataset):
         self.libri_df = select_libri_split(libri_meta, self.mode, self.cfg.libri_subsets)
 
         urban_meta = pd.read_csv(cwd / self.cfg.urban_meta)
-        self.urban_df = urban_meta[urban_meta["split"] == self.mode]
+        self.urban_df = urban_meta[urban_meta["split"] == self.mode].reset_index(drop=True)
 
         self.match_urban_to_libri = create_match_urban_to_libri(self.cfg.sr_urban, self.cfg.sr_libri)
 
