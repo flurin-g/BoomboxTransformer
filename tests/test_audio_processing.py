@@ -2,7 +2,6 @@ from unittest import TestCase
 from audio_processing import match_length, mix_samples, stereo_to_mono
 
 import torch
-import torchaudio
 
 
 class Test(TestCase):
