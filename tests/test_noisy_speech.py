@@ -44,13 +44,11 @@ class TestNoisySpeechFunctions(TestCase):
         meta_path = "tests/test_data/libri_dir_struct/SPEAKERS.txt"
         root_path = "tests/test_data/libri_dir_struct/"
         res = create_libri_data_frame(root_path, meta_path, CWD, ['dev-clean'])
-        print(res)
 
     def test_partition_urban_meta(self):
         urban_df = create_urban_data_frame(urban_path=self.settings.dataset.urban_path,
                                            cwd=CWD)
         res = partition_urban_meta(urban_df)
-        print(res.groupby("split")["class"].count())
         self.assertEqual(2121, res.groupby("split")["class"].count().train)
         self.assertEqual(454, res.groupby("split")["class"].count().dev)
         self.assertEqual(455, res.groupby("split")["class"].count().test)
@@ -84,48 +82,54 @@ class TestNoisySpeechDataset(TestCase):
         cfg = compose("config")
         cls.dataset = cfg.dataset
         cls.hparams = cfg.hparams
-        transform = torchaudio.transforms.MelSpectrogram(sample_rate=cls.dataset.sr_libri,
+        cls.transform = torchaudio.transforms.MelSpectrogram(sample_rate=cls.dataset.sr_libri,
                                                          n_mels=cls.hparams["n_mels"])
-        cls.noisy_speech = NoisySpeechDataset(cfg=cls.dataset,
-                                              cwd=CWD,
-                                              mode="train",
-                                              transform=transform)
+
+    def setUp(self):
+        self.noisy_speech = NoisySpeechDataset(cfg=self.dataset,
+                                               cwd=CWD,
+                                               mode="train",
+                                               transform=self.transform)
 
     def test_init(self):
-            self.assertIsInstance(self.noisy_speech, NoisySpeechDataset)
+        self.assertIsInstance(self.noisy_speech, NoisySpeechDataset)
 
     def test_len(self):
-        print(len(self.noisy_speech))
         self.assertEqual(len(self.noisy_speech), 132553)
         self.noisy_speech.oversampling = 2
-        print(len(self.noisy_speech))
         self.assertEqual(len(self.noisy_speech), 265106)
 
-    def test_shift_no_oversampling(self):
-        self.noisy_speech.oversampling = 1
+    def test_shift(self):
+        self.noisy_speech.oversampling = 3
         res = self.noisy_speech.shift(132553 + 1)
-        print(res)
-        self.assertEqual(res, 0)
-
-    def test_shift_oversampling_0(self):
-        self.noisy_speech.oversampling = 2
-        res = self.noisy_speech.shift(132553 - 1)
-        print(res)
-        self.assertEqual(res, 0)
-
-    def test_shift_oversampling_1(self):
-        self.noisy_speech.oversampling = 2
-        res = self.noisy_speech.shift(132553 + 0)
-        self.assertEqual(res, 1)
-        res = self.noisy_speech.shift(132553 + 1)
-        print(res)
         self.assertEqual(res, 1)
 
-    def test_shift_oversampling_2(self):
-        self.noisy_speech.oversampling = 2
-        res = self.noisy_speech.shift(132553 * 2)
-        print(res)
+        res = self.noisy_speech.shift(2 * 132553 + 1)
         self.assertEqual(res, 2)
+
+        res = self.noisy_speech.shift(3 * 132553 + 1)
+        self.assertEqual(res, 3)
+
+    # ToDo: test comp_urban_idx
+    def test_comp_urban_idx_8_3(self):
+        self.noisy_speech.speech_len = 8
+        self.noisy_speech.noise_len = 3
+
+        self.assertEqual(0, self.noisy_speech.comp_urban_idx(4))
+        self.assertEqual(1, self.noisy_speech.comp_urban_idx(8))
+        self.assertEqual(2, self.noisy_speech.comp_urban_idx(16))
+        self.assertEqual(2, self.noisy_speech.comp_urban_idx(12))
+        self.assertEqual(2, self.noisy_speech.comp_urban_idx(15))
+
+    def test_comp_urban_idx_8_3(self):
+        self.noisy_speech.speech_len = 8
+        self.noisy_speech.noise_len = 4
+
+        self.assertEqual(0, self.noisy_speech.comp_urban_idx(0))
+        self.assertEqual(3, self.noisy_speech.comp_urban_idx(7))
+        self.assertEqual(3, self.noisy_speech.comp_urban_idx(21))
+        self.assertEqual(2, self.noisy_speech.comp_urban_idx(27))
+        self.assertEqual(1, self.noisy_speech.comp_urban_idx(30))
 
     def test_path_at_libri(self):
         res = self.noisy_speech.path_at(idx=0, of="libri")
@@ -135,11 +139,9 @@ class TestNoisySpeechDataset(TestCase):
         res = self.noisy_speech.path_at(idx=0, of="urban")
         self.assertEqual(res, "audio/fold10/100648-1-2-0.wav")
 
-    # ToDo: y u no work?
     def test_path_at_urban_shift1(self):
         self.noisy_speech.oversampling = 2
         res = self.noisy_speech.path_at(idx=132553, of="urban")
-        print(res)
         self.assertEqual(res, "audio/fold10/100648-1-4-0.wav")
 
     def test_get_item(self):
