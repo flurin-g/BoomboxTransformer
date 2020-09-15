@@ -129,36 +129,41 @@ class NoisySpeechDataset(Dataset):
         self.noise_len = len(self.urban_df.index)
         self.oversampling = None
         self.compute_oversampling(self.cfg.oversampling)
-        self.comp_urban_idx = self.create_comp_urban_idx()
 
     def __len__(self) -> int:
         return self.speech_len * self.oversampling
 
     def compute_oversampling(self, oversampling: int) -> None:
+        """
+        Makes sure no out of bounds occurs when shifting
+        @param oversampling: number of speech samples a given
+            noise sample should be paired with
+        @return: The maximum number of shifts for noise_idx
+            relative to speech_idx
+        """
         if oversampling > 1:
             self.oversampling = oversampling if oversampling < self.noise_len else self.noise_len - 1
-            self.speech_len = self.speech_len - 1 if is_prime(self.speech_len) else self.speech_len
-            self.noise_len = gcd(self.speech_len, self.noise_len)
         else:
             self.oversampling = 1
 
     def shift(self, idx: int) -> int:
-        if self.oversampling == 1:
-            shift = 0
-        else:
-            shift = idx // self.speech_len
-        return shift
+        """
+        Computes the offset for noise samples, such that when all speech
+            samples have been paired, the noise samples are offset by +1 relative
+            to the previous pairings
+        @param idx: absolute idx of batch
+        @return: offset for the noise samples
+        """
+        return idx // self.speech_len
 
-    def create_comp_urban_idx(self) -> callable:
-        if self.oversampling >= 2:
-            def comp_urban_idx(idx: int) -> int:
-                return (idx + self.shift(idx)) % self.speech_len % self.noise_len
-        else:
-            def comp_urban_idx(idx: int) -> int:
-                idx_boundary = self.noise_len if self.noise_len < self.speech_len else self.speech_len
-                return (idx + self.shift(idx)) % idx_boundary
-
-        return comp_urban_idx
+    def comp_urban_idx(self, idx: int):
+        """
+        Assures unique pairings between speech samples and noise samples
+            for the current batch
+        @param idx: absolute idx of batch
+        @return: idx for self.urban_df
+        """
+        return ((idx % self.speech_len) + self.shift(idx)) % self.noise_len
 
     @staticmethod
     def create_libri_meta(libri_path: str, libri_meta_path: str, file_name: str, cwd: Path, subsets: list) -> None:
