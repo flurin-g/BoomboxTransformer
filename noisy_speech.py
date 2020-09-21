@@ -10,9 +10,10 @@ import pandas as pd
 import torch
 import torchaudio
 from omegaconf import DictConfig
+from pytorch_lightning import LightningDataModule
 from torchvision.datasets.utils import download_and_extract_archive, download_file_from_google_drive, extract_archive
 from sklearn.model_selection import train_test_split
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader
 
 from audio_processing import create_match_urban_to_libri, mix_samples
 
@@ -214,3 +215,80 @@ class NoisySpeechDataset(Dataset):
             speech = self.transform(speech)
 
         return mixed, speech
+
+
+class NoisySpeechModule(LightningDataModule):
+
+    def __init__(self, cfg: DictConfig, batch_size: int, n_mels: int, cwd: Path):
+        super().__init__()
+        self.cfg = cfg
+        self.batch_size = batch_size
+        self.n_mels = n_mels
+        self.cwd = cwd
+
+        self.train: Dataset = None
+        self.val: Dataset = None
+
+    def prepare_data(self) -> None:
+        if self.cfg.download:
+            NoisySpeechDataset.download_libri(cfg=self.cfg, cwd=self.cwd)
+            NoisySpeechDataset.download_urban(cfg=self.cfg, cwd=self.cwd)
+
+        if self.cfg.create_meta:
+            NoisySpeechDataset.create_libri_meta(libri_path=self.cfg.libri_path,
+                                                 libri_meta_path=self.cfg.libri_speakers,
+                                                 file_name=self.cfg.libri_meta,
+                                                 cwd=self.cwd,
+                                                 subsets=self.cfg.libri_subsets)
+
+            NoisySpeechDataset.create_urban_meta(urban_path=self.cfg.urban_path,
+                                                 file_name=self.cfg.urban_meta,
+                                                 cwd=self.cwd)
+
+    def setup(self, stage=None):
+        transform = torchaudio.transforms.MelSpectrogram(sample_rate=self.cfg.sr_libri,
+                                                         n_mels=self.n_mels)
+
+        self.train = NoisySpeechDataset(cfg=self.cfg,
+                                        cwd=self.cwd,
+                                        mode="train",
+                                        transform=transform)
+        self.val = NoisySpeechDataset(cfg=self.cfg,
+                                      cwd=self.cwd,
+                                      mode="dev",
+                                      transform=transform)
+
+    @staticmethod
+    def pad_audio_seq(data: Tuple[torch.Tensor, torch.Tensor]) -> Tuple[torch.Tensor, torch.Tensor]:
+        x_spectrograms = []
+        y_spectrograms = []
+        input_lengths = []
+        for (mixed, speech) in data:
+            x_spectrograms.append(mixed.squeeze(0).transpose(0, 1))
+            y_spectrograms.append(speech.squeeze(0).transpose(0, 1))
+            input_lengths.append(mixed.shape[0])
+
+        # sort by sequence length, for pad_sequence to work
+        ixs = sorted((ix for ix in range(len(input_lengths))), key=lambda ix: input_lengths[ix], reverse=True)
+        x_spectrograms = [x_spectrograms[ix] for ix in ixs]
+        y_spectrograms = [y_spectrograms[ix] for ix in ixs]
+
+        x_spectrograms = torch.nn.utils.rnn.pad_sequence(x_spectrograms, batch_first=True)
+        y_spectrograms = torch.nn.utils.rnn.pad_sequence(y_spectrograms, batch_first=True)
+        # ToDo: check if needed:
+        # seq_len = x_spectrograms.shape[0]
+        return x_spectrograms, y_spectrograms  # , seq_len
+
+    def train_dataloader(self) -> DataLoader:
+        return DataLoader(self.train,
+                          batch_size=self.batch_size,
+                          collate_fn=self.pad_audio_seq)
+
+    def val_dataloader(self) -> DataLoader:
+        return DataLoader(self.val,
+                          batch_size=self.batch_size,
+                          collate_fn=self.pad_audio_seq)
+
+    def test_dataloader(self):
+        # ToDo: Implement
+        pass
