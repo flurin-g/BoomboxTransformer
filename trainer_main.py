@@ -19,7 +19,7 @@ def train(cfg: DictConfig) -> None:
                                      CWD)
 
     if cfg.hparams.model_name == "LSTM":
-        boom = BoomboxLSTM(cfg, CWD)
+        boom = BoomboxLSTM(cfg.hparams, CWD)
 
     trainer = Trainer(**cfg.lightning)
     trainer.fit(boom, noisy_speech)

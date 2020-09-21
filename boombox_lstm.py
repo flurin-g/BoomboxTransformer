@@ -8,13 +8,11 @@ import torch
 
 
 class BoomboxLSTM(pl.LightningModule):
-    def __init__(self, cfg: DictConfig, cwd: Path):
+    def __init__(self, hparams: DictConfig, cwd: Path):
         super().__init__()
         self.model_type = 'LSTM'
 
-        self.cfg = cfg
-        self.dataset = cfg.dataset
-        self.hparams = cfg.hparams
+        self.hparams = hparams
         self.cwd = cwd
 
         self.lstm = nn.LSTM(input_size=self.hparams.n_mels,
