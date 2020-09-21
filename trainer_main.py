@@ -4,20 +4,25 @@ import hydra
 from omegaconf import DictConfig
 from pytorch_lightning import Trainer
 
+from boombox_lstm import BoomboxLSTM
 from model import BoomboxTransformer
+from noisy_speech import NoisySpeechModule
 
 CWD = pathlib.Path(__file__).parent.absolute()
 
 
 @hydra.main(config_path="conf", config_name="config")
 def train(cfg: DictConfig) -> None:
-    boom = BoomboxTransformer(cfg, CWD)
+    noisy_speech = NoisySpeechModule(cfg.dataset,
+                                     cfg.hparams.batch_size,
+                                     cfg.hparams.n_mels,
+                                     CWD)
 
-    boom.prepare_data()
+    if cfg.hparams.model_name == "LSTM":
+        boom = BoomboxLSTM(cfg, CWD)
 
     trainer = Trainer(**cfg.lightning)
-
-    trainer.fit(boom)
+    trainer.fit(boom, noisy_speech)
 
 
 if __name__ == "__main__":
