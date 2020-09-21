@@ -3,7 +3,7 @@ from pathlib import Path
 import pytorch_lightning as pl
 from omegaconf import DictConfig
 from torch import nn
-from torch.nn import functional as F
+import torch.nn.functional as F
 from torch.optim import Adam
 
 
@@ -29,18 +29,27 @@ class BoomboxLSTM (pl.LightningModule):
         lstm_out, hidden = self.lstm(x)
         out = self.fc(lstm_out)
 
-        return out, hidden
+        return out
 
     def configure_optimizers(self) -> callable:
         return Adam(self.parameters(), lr=self.hparams.lr)
 
-    def training_step(self, batch, batch_idx):
+    def training_step(self, batch, batch_idx: int) -> dict:
         x, y = batch
-        y_pred, hiddens = self(x)
+        y_pred = self(x)
 
-        loss = F.MSELoss(y_pred, y)
+        loss = F.mse_loss(y_pred, y)
 
-        result = pl.TrainResult(minimize=loss, hiddens=hiddens)
-        result.log('train_loss', loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
+        result = pl.TrainResult(minimize=loss)
+        result.log('train_loss', loss)
         return result
 
+    def validation_step(self, batch, batch_idx: int) -> dict:
+        x, y = batch
+        y_pred = self(x)
+
+        val_loss = F.mse_loss(y_pred, y)
+
+        result = pl.EvalResult(checkpoint_on=val_loss)
+        result.log('val_loss', val_loss)
+        return result
