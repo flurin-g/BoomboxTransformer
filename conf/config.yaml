@@ -3,7 +3,7 @@ hydra:
     dir: data/output
 defaults:
   - dataset: noisy_speech
-  - hparams: basic
+  - hparams: autoencoder
   - lightning: local
   - logging: tensorboard
 save_dir: logs/
