@@ -1,9 +1,11 @@
-FROM rapidsai/rapidsai:cuda10.2-runtime-ubuntu18.04-py3.8
+FROM nvidia/cuda:10.2-cudnn8-runtime-ubuntu18.04
 
 COPY requirements.txt /
-RUN apt update && apt install -y
+RUN apt update && apt install -y \
+    python3.8\
+    python3-pip
 
-RUN pip install -r /requirements.txt
+RUN pip3 install -r /requirements.txt
 
 COPY . /BoomboxTransformer
 WORKDIR /BoomboxTransformer
@@ -11,4 +13,4 @@ WORKDIR /BoomboxTransformer
 VOLUME /BoomboxTransformer/data
 
 WORKDIR /BoomboxTransformer
-CMD python3 trainer_main.py
+CMD python3.8 trainer_main.py
