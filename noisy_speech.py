@@ -112,7 +112,7 @@ def is_prime(a):
 class NoisySpeechDataset(Dataset):
 
     def __init__(self, cfg: DictConfig, cwd: Path, mode: str, transform: callable):
-
+        # ToDo: assure that object can be instantiated even if data not downloaded yet
         self.cfg = cfg
         self.cwd = cwd
         self.mode = mode
