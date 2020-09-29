@@ -4,6 +4,6 @@ hydra:
 defaults:
   - dataset: noisy_speech
   - hparams: lstm
-  - lightning: local
+  - lightning: remote
   - logging: tensorboard
 save_dir: logs/
