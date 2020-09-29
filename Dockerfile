@@ -1,4 +1,5 @@
-FROM pytorch/pytorch:1.6.0-cuda10.2-cudnn8-runtime
+FROM nvidia/cuda:10.2-cudnn8-runtime-centos8
+
 
 COPY requirements.txt /
 RUN pip install -r /requirements.txt
