@@ -1,7 +1,7 @@
 FROM rapidsai/rapidsai:cuda10.2-runtime-ubuntu18.04-py3.8
 
 COPY requirements.txt /
-RUN apt update && apt install -y \
+RUN apt update && apt install -y
 
 RUN pip3 install -r /requirements.txt
 
