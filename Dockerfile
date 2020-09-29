@@ -1,9 +1,7 @@
-FROM nvidia/cuda:10.2-cudnn8-runtime-ubuntu18.04
+FROM rapidsai/rapidsai:cuda10.2-runtime-ubuntu18.04-py3.8
 
 COPY requirements.txt /
 RUN apt update && apt install -y \
-    python3\
-    python3-pip
 
 RUN pip3 install -r /requirements.txt
 
