@@ -2,7 +2,6 @@ FROM nvidia/cuda:10.2-cudnn8-runtime-ubuntu18.04
 
 COPY requirements.txt /
 RUN apt update && apt install -y \
-    python3.8\
     python3-pip
 
 RUN pip3 install -r /requirements.txt
@@ -13,4 +12,4 @@ WORKDIR /BoomboxTransformer
 VOLUME /BoomboxTransformer/data
 
 WORKDIR /BoomboxTransformer
-CMD python3.8 trainer_main.py
+CMD python3 trainer_main.py
