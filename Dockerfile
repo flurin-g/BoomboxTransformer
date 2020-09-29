@@ -1,4 +1,4 @@
-FROM nvidia/cuda:10.2-cudnn8-runtime-ubuntu18.04
+FROM nvidia/cuda:11.0-cudnn8-runtime-ubuntu18.04
 
 COPY requirements.txt /
 RUN apt update && apt install -y \
