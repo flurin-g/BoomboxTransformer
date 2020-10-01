@@ -10,4 +10,4 @@ WORKDIR /BoomboxTransformer
 VOLUME /BoomboxTransformer/data
 
 WORKDIR /BoomboxTransformer
-CMD python3 trainer_main.py
+CMD python trainer_main.py
