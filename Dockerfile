@@ -1,4 +1,4 @@
-FROM nvidia/cuda:11.0-cudnn8-runtime-ubuntu18.04
+FROM pytorchlightning/pytorch_lightning:base-cuda-py3.8-torch1.6
 
 COPY requirements.txt /
 RUN apt update && apt install -y \
