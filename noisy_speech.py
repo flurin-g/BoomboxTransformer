@@ -178,10 +178,9 @@ class NoisySpeechDataset(Dataset):
 
     @staticmethod
     def download_libri(cfg: DictConfig, cwd: Path) -> None:
-        Path.mkdir(cwd / cfg.libri_path, parents=True, exist_ok=True)
         for subset in cfg.libri_subsets:
             download_and_extract_archive(url=cfg.libri_urls[subset],
-                                         download_root=cwd / cfg.libri_path,
+                                         download_root=cwd / "data",
                                          filename=subset + ".tar.gz",
                                          remove_finished=True)
 
