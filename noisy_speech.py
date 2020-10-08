@@ -112,7 +112,6 @@ def is_prime(a):
 class NoisySpeechDataset(Dataset):
 
     def __init__(self, cfg: DictConfig, cwd: Path, mode: str, transform: callable):
-        # ToDo: assure that object can be instantiated even if data not downloaded yet
         self.cfg = cfg
         self.cwd = cwd
         self.mode = mode
@@ -188,7 +187,7 @@ class NoisySpeechDataset(Dataset):
 
     @staticmethod
     def download_urban(cfg: DictConfig, cwd: Path) -> None:
-        urban_path = Path(cfg.cfg.urban_path)
+        urban_path = Path(cfg.urban_path)
         Path.mkdir(cwd / urban_path.name, parents=True, exist_ok=True)
         download_file_from_google_drive(file_id=cfg.urban_url,
                                         root=cwd / urban_path.parent,
