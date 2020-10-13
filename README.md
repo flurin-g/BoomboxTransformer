@@ -1,3 +1,7 @@
+# Run Tensorboard
+- The command to run tensorboard is:  
+`tensorboard --logdir data/output/lightning_logs`
+
 # Setup containers
 1. **Create volume**: When using the containerized version, first create a volume to hold the data, provide a name for easier reference, e.g.
 `boombox-data`:  
