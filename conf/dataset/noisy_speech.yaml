@@ -15,7 +15,7 @@ libri_urls:
   test-clean: "http://www.openslr.org/resources/12/test-clean.tar.gz"
   train-clean-100: "http://www.openslr.org/resources/12/train-clean-100.tar.gz"
   train-clean-360: "http://www.openslr.org/resources/12/train-clean-360.tar.gz"
-libri_speakers: "data/LibriSpeech/SPEAKERS.txt"
+libri_speakers: "data/LibriSpeech/SPEAKERS.TXT"
 libri_meta: "data/libri_meta.csv"
 urban_path: "data/UrbanSound8K"
 urban_meta: "data/urban_meta.csv"
