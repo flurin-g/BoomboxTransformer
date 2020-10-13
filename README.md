@@ -9,3 +9,20 @@
 Note: To run without a specified volume, use:  
 `docker run --gpus all -t boombox:latest`
 
+# Configuration and Hyperparameters
+Configuration handling is done with facebook Hydra, the configuration files are hierarchically structured, like so:
+```
+├── config.yaml
+├── dataset
+│   └── noisy_speech.yaml
+├── hparams
+│   ├── basic.yaml
+│   └── lstm.yaml
+├── lightning
+│   ├── local.yaml
+│   └── remote.yaml
+└── logging
+    └── tensorboard.yaml
+```
+In the `config.yaml` you can specify which setup you want to run, if you run locally without gpu, use `local`,
+to run with gpu and half-precision training, enter `remote`
