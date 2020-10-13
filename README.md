@@ -24,5 +24,8 @@ Configuration handling is done with facebook Hydra, the configuration files are 
 └── logging
     └── tensorboard.yaml
 ```
-In the `config.yaml` you can specify which setup you want to run, if you run locally without gpu, use `local`,
+- **Local vs remote**: In the `config.yaml` you can specify which setup you want to run, if you run locally without gpu, use `local`,
 to run with gpu and half-precision training, enter `remote`
+- **Number of gpu's**: The number of gpu's used by the model is set under `lightning/remote.yaml`, the default is 1
+- **Dataset**: Urban8k and Librispeech are downloaded and meta-data is created per default, if you have downloaded them already
+you can set `download: False` and `create_meta: False` under `dataset/noisy_speech.yaml` to save time
