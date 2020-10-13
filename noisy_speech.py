@@ -1,4 +1,5 @@
 from math import gcd
+import os
 import itertools
 import pathlib
 import re
@@ -223,6 +224,7 @@ class NoisySpeechModule(LightningDataModule):
         self.batch_size = batch_size
         self.n_mels = n_mels
         self.cwd = cwd
+        self.num_cores = os.cpu_count()
 
         self.train: Dataset = None
         self.val: Dataset = None
@@ -279,11 +281,15 @@ class NoisySpeechModule(LightningDataModule):
 
     def train_dataloader(self) -> DataLoader:
         return DataLoader(self.train,
+                          num_workers=self.num_cores,
+                          pin_memory=torch.cuda.is_available(),
                           batch_size=self.batch_size,
                           collate_fn=self.pad_audio_seq)
 
     def val_dataloader(self) -> DataLoader:
         return DataLoader(self.val,
+                          num_workers=self.num_cores,
+                          pin_memory=torch.cuda.is_available(),
                           batch_size=self.batch_size,
                           collate_fn=self.pad_audio_seq)
 
